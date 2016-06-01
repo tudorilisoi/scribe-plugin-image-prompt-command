@@ -9,46 +9,47 @@ var extend = require('extend');
  * @return {function}
  */
 module.exports = function (options, prompt) {
-    return function (scribe) {
-        var imagePromptCommand = new scribe.api.Command('insertHTML');
-        imagePromptCommand.nodeName = 'IMG';
+	return function (scribe) {
+		var imagePromptCommand = new scribe.api.Command('insertHTML');
+		imagePromptCommand.nodeName = 'IMG';
 
-        if (typeof options == 'function') {
-            prompt = options;
-        };
+		if (typeof options == 'function') {
+			prompt = options;
+		}
 
-        imagePromptCommand.execute = function () {
-            var link = prompt ? prompt() : window.prompt('Enter image url');
-            if (!link) return false;
-            if (typeof link === 'object') {
-                // If some extra properties were passed from prompt
-                options = extend(options, link);
-            } else if (typeof link === 'string') {
-                options.url = link
-            };
+		imagePromptCommand.execute = function () {
+			var link = prompt ? prompt() : window.prompt('Enter image url');
+			execute.call(this, link, options, scribe)
 
-            //if (!/^https?\:\/\//.test(options.url)) {
-            //    options.url = location.protocol + '//' + options.url;
-            //};
+		}
 
-            var url = options.url;
-            var html = addAttributes('<img src=' + url + '>', options.attributes);
-
-            scribe.api.SimpleCommand.prototype.execute.call(this, html);
-        }
-
-        scribe.commands.imagePrompt = imagePromptCommand;
-    };
+		scribe.commands.imagePrompt = imagePromptCommand;
+	};
 }
 
-function addAttributes (html, attrs) {
-    var host = document.createElement('div');
-    host.innerHTML = unescape(html);
+function execute(link, options, scribe) {
+	if (!link) return false;
+	if (typeof link === 'object') {
+		// If some extra properties were passed from prompt
+		options = extend(options, link);
+	} else if (typeof link === 'string') {
+		options.url = link
+	}
 
-    var frame = host.children[0];
-    for (var prop in attrs) {
-        frame.setAttribute(prop, attrs[prop]);
-    }
+	var url = options.url;
+	var html = addAttributes('<img src=' + url + '>', options.attributes);
 
-    return host.innerHTML;
+	scribe.api.SimpleCommand.prototype.execute.call(this, html);
+}
+
+function addAttributes(html, attrs) {
+	var host = document.createElement('div');
+	host.innerHTML = unescape(html);
+
+	var frame = host.children[0];
+	for (var prop in attrs) {
+		frame.setAttribute(prop, attrs[prop]);
+	}
+
+	return host.innerHTML;
 }
