@@ -10,7 +10,7 @@ var extend = require('extend');
  */
 module.exports = function (options, prompt) {
     return function (scribe) {
-        var imagePromptCommand = new scribe.api.Command('insertImage');
+        var imagePromptCommand = new scribe.api.Command('insertHTML');
         imagePromptCommand.nodeName = 'IMG';
 
         if (typeof options == 'function') {
@@ -18,7 +18,7 @@ module.exports = function (options, prompt) {
         };
 
         imagePromptCommand.execute = function () {
-            link = prompt ? prompt() : window.prompt('Enter image url');
+            var link = prompt ? prompt() : window.prompt('Enter image url');
             if (!link) return false;
             if (typeof link === 'object') {
                 // If some extra properties were passed from prompt
@@ -27,9 +27,9 @@ module.exports = function (options, prompt) {
                 options.url = link
             };
 
-            if (!/^https?\:\/\//.test(options.url)) {
-                options.url = location.protocol + '//' + options.url;
-            };
+            //if (!/^https?\:\/\//.test(options.url)) {
+            //    options.url = location.protocol + '//' + options.url;
+            //};
 
             var url = options.url;
             var html = addAttributes('<img src=' + url + '>', options.attributes);
