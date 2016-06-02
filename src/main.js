@@ -18,8 +18,18 @@ module.exports = function (options, prompt) {
 		}
 
 		imagePromptCommand.execute = function () {
+			var self = this;
 			var link = prompt ? prompt() : window.prompt('Enter image url');
-			execute.call(this, link, options, scribe)
+			if (link) {
+				if (link.then) { //support promises
+					link.then(function (promisedLink) {
+						execute.call(self, promisedLink, options, scribe)
+					})
+
+				} else { //or a classic function
+					execute.call(self, link, options, scribe)
+				}
+			}
 
 		}
 
@@ -28,7 +38,6 @@ module.exports = function (options, prompt) {
 }
 
 function execute(link, options, scribe) {
-	if (!link) return false;
 	if (typeof link === 'object') {
 		// If some extra properties were passed from prompt
 		options = extend(options, link);
