@@ -8,7 +8,7 @@ var extend = require('extend');
  * @optional  {Function} prompt Function for getting the url
  * @return {function}
  */
-module.exports = function (options, prompt) {
+function command(options, prompt) {
 	return function (scribe) {
 		var imagePromptCommand = new scribe.api.Command('insertHTML');
 		imagePromptCommand.nodeName = 'IMG';
@@ -38,6 +38,7 @@ module.exports = function (options, prompt) {
 }
 
 function execute(link, options, scribe) {
+	console.log('EDITOR INSERT', arguments);
 	if (typeof link === 'object') {
 		// If some extra properties were passed from prompt
 		options = extend(options, link);
@@ -48,7 +49,7 @@ function execute(link, options, scribe) {
 	var url = options.url;
 	var html = addAttributes('<img src=' + url + '>', options.attributes);
 
-	scribe.api.SimpleCommand.prototype.execute.call(this, html);
+	scribe.api.SimpleCommand.prototype.execute.call(scribe.commands.imagePrompt, html);
 }
 
 function addAttributes(html, attrs) {
@@ -61,4 +62,9 @@ function addAttributes(html, attrs) {
 	}
 
 	return host.innerHTML;
+}
+
+module.exports  = {
+	command:command,
+	execute:execute,
 }
